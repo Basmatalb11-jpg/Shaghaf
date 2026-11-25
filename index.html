@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شغف | مجمع أم كلثوم الثانوي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background-color: #f8fbff;
+      color: #1e293b;
+    }
+    .sky-gradient {
+      background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, #bae6fd 100%);
+    }
+    .card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(14, 165, 233, 0.08);
+    }
+    .tab-active {
+      background-color: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #bae6fd; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- الشعار المدمج كـ SVG عالي الدقة ليعمل في أي مكان بدون روابط خارجية -->
+  <template id="logo-template">
+    <svg viewBox="0 0 220 230" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="60%" stop-color="#7dd3fc"/>
+          <stop offset="100%" stop-color="#bae6fd"/>
+        </linearGradient>
+        <linearGradient id="bookGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#0284c7"/>
+          <stop offset="50%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#0284c7"/>
+        </linearGradient>
+      </defs>
+      <!-- النجمة الذهبية -->
+      <polygon points="110,16 114,27 125,27 116,34 119,45 110,38 101,45 104,34 95,27 106,27" fill="#eab308"/>
+      <!-- الشعلة -->
+      <path d="M110,48 C110,48 134,74 134,96 C134,110 123,120 110,120 C97,120 86,110 86,96 C86,84 96,70 102,64 C100,74 106,79 106,79 C106,79 103,62 110,48 Z" fill="url(#flameGrad)"/>
+      <path d="M110,76 C110,76 121,88 121,99 C121,106 116,112 110,112 C104,112 99,106 99,99 C99,91 106,82 110,76 Z" fill="#ffffff" opacity="0.75"/>
+      <!-- الكتاب المفتوح -->
+      <path d="M44,112 C68,108 92,114 110,126 C128,114 152,108 176,112 L182,134 C156,129 130,135 110,147 C90,135 64,129 38,134 Z" fill="url(#bookGrad)"/>
+      <path d="M52,102 C74,99 95,105 110,117 C125,105 146,99 168,102 L172,118 C150,114 128,120 110,132 C92,120 70,114 48,118 Z" fill="#e0f2fe"/>
+      <!-- النص -->
+      <text x="110" y="188" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="900" font-size="44" fill="#0f172a">شغف</text>
+      <text x="110" y="214" text-anchor="middle" font-family="Tajawal, sans-serif" font-weight="700" font-size="14" fill="#475569">مجمع أم كلثوم الثانوي</text>
+    </svg>
+  </template>
+
+  <!-- ==================== شاشة الترحيب والدخول ==================== -->
+  <div id="auth-screen" class="min-h-screen sky-gradient flex items-center justify-center p-4">
+    <div class="bg-white/95 backdrop-blur-md w-full max-w-md rounded-3xl p-6 sm:p-8 card-shadow border border-sky-100">
+      <!-- الشعار -->
+      <div class="w-36 h-36 mx-auto mb-2" id="auth-logo-box"></div>
+      <p class="text-center text-sky-600 text-sm font-bold mb-6">مجتمع مدرسي تفاعلي للمبادرات، التطوع، واكتشاف المواهب</p>
+
+      <!-- أزرار التبديل بين الدخول وإنشاء حساب -->
+      <div class="grid grid-cols-2 gap-2 bg-sky-50 p-1.5 rounded-2xl mb-6">
+        <button id="btn-show-login" onclick="switchAuthMode('login')" class="py-2.5 rounded-xl font-bold text-sm transition tab-active">تسجيل الدخول</button>
+        <button id="btn-show-register" onclick="switchAuthMode('register')" class="py-2.5 rounded-xl font-bold text-sm text-sky-700 transition">إنشاء حساب جديد</button>
+      </div>
+
+      <!-- نموذج تسجيل الدخول -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">اسم المستخدم</label>
+          <input type="text" id="login-username" required placeholder="أدخلي اسم المستخدم" class="w-full px-4 py-3 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none bg-sky-50/40" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">كلمة المرور</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none bg-sky-50/40" />
+        </div>
+        <p id="login-error" class="text-red-500 text-xs font-bold hidden"></p>
+        <button type="submit" class="w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl shadow-md transition">دخول إلى المنصة</button>
+
+        <!-- أزرار الدخول السريع للتجربة -->
+        <div class="pt-4 border-t border-slate-100">
+          <p class="text-xs text-center text-slate-400 font-bold mb-2">تجربة فورية سريعة للمنصة:</p>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="quickDemoLogin('student')" class="py-2 px-3 bg-sky-50 hover:bg-sky-100 text-sky-700 rounded-xl text-xs font-bold border border-sky-200 transition">👩‍🎓 دخول كطالبة</button>
+            <button type="button" onclick="quickDemoLogin('teacher')" class="py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold border border-indigo-200 transition">👩‍🏫 دخول كمعلمة</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- نموذج إنشاء حساب جديد -->
+      <form id="register-form" onsubmit="handleRegister(event)" class="space-y-3.5 hidden">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5">نوع الحساب</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer">
+              <input type="radio" name="reg-role" value="student" checked onchange="toggleRoleFields()" class="peer hidden">
+              <div class="text-center py-2.5 rounded-xl border border-sky-200 peer-checked:bg-sky-600 peer-checked:text-white font-bold text-sm transition">👩‍🎓 طالبة</div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="reg-role" value="teacher" onchange="toggleRoleFields()" class="peer hidden">
+              <div class="text-center py-2.5 rounded-xl border border-sky-200 peer-checked:bg-sky-600 peer-checked:text-white font-bold text-sm transition">👩‍🏫 معلمة</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- حقول الطالبة -->
+        <div id="student-fields" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الثلاثي</label>
+            <input type="text" id="reg-student-name" placeholder="مثال: سارة محمد العتيبي" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">الصف الدراسي</label>
+            <select id="reg-grade" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm bg-white">
+              <option value="أول ثانوي">أول ثانوي</option>
+              <option value="ثاني ثانوي">ثاني ثانوي</option>
+              <option value="ثالث ثانوي">ثالث ثانوي</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- حقول المعلمة -->
+        <div id="teacher-fields" class="space-y-3 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">اسم المعلمة</label>
+            <input type="text" id="reg-teacher-name" placeholder="مثال: أ. نورة الزهراني" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التخصص / المجال الإشرافي</label>
+            <input type="text" id="reg-specialty" placeholder="مثال: رائدة النشاط / الحاسب الآلي" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم (للدخول)</label>
+          <input type="text" id="reg-username" required placeholder="اختر اسم مستخدم" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني</label>
+          <input type="email" id="reg-email" required placeholder="name@example.com" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور</label>
+          <input type="password" id="reg-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 focus:border-sky-400 focus:outline-none text-sm" />
+        </div>
+        <p id="reg-error" class="text-red-500 text-xs font-bold hidden"></p>
+        <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl shadow-md transition">إنشاء الحساب والدخول</button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+        <p class="text-xs text-slate-500 font-bold">مجمع أم كلثوم الثانوي • ترشح جائزة الأميرة صيتة</p>
+        <p class="text-[11px] text-sky-600 font-bold mt-0.5">فكرة وتطوير الطالبة: بسمة دان</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== التطبيق الرئيسي ==================== -->
+  <div id="main-app" class="hidden flex-1 flex flex-col">
+    <!-- الهيدر -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-sky-100 sticky top-0 z-40">
+      <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-11 h-11" id="header-logo-box"></div>
+          <div>
+            <h1 class="font-black text-lg text-slate-800 leading-none">منصة شغف</h1>
+            <span class="text-[11px] text-sky-600 font-bold">مجمع أم كلثوم الثانوي</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="header-user-badge" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-bold border border-sky-100"></span>
+          <button onclick="logout()" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold transition">خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- شريط التنقل للطالبة -->
+    <nav id="student-nav" class="bg-white border-b border-sky-100 hidden overflow-x-auto">
+      <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-2 min-w-max">
+        <button onclick="switchStudentTab('home')" data-stab="home" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold transition tab-active">🏠 الرئيسية</button>
+        <button onclick="switchStudentTab('initiatives')" data-stab="initiatives" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">💡 المبادرات</button>
+        <button onclick="switchStudentTab('volunteering')" data-stab="volunteering" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">🤝 التطوع</button>
+        <button onclick="switchStudentTab('competitions')" data-stab="competitions" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">🏆 المسابقات</button>
+        <button onclick="switchStudentTab('talent')" data-stab="talent" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">✨ موهبة</button>
+        <button onclick="switchStudentTab('profile')" data-stab="profile" class="stab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">👤 حسابي الشخصي</button>
+      </div>
+    </nav>
+
+    <!-- شريط التنقل للمعلمة -->
+    <nav id="teacher-nav" class="bg-white border-b border-sky-100 hidden overflow-x-auto">
+      <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-2 min-w-max">
+        <button onclick="switchTeacherTab('dashboard')" data-ttab="dashboard" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold transition tab-active">📊 لوحة التحكم والإطلاق</button>
+        <button onclick="switchTeacherTab('participants')" data-ttab="participants" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">✅ اعتماد المشاركات والساعات</button>
+        <button onclick="switchTeacherTab('moderation')" data-ttab="moderation" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">🛡️ إشراف قسم موهبة</button>
+        <button onclick="switchTeacherTab('tprofile')" data-ttab="tprofile" class="ttab-btn px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-sky-50 transition">👤 حسابي الشخصي</button>
+      </div>
+    </nav>
+
+    <!-- المحتوى الديناميكي -->
+    <main id="app-content" class="flex-1 max-w-6xl w-full mx-auto px-4 py-6"></main>
+
+    <!-- الفوتر -->
+    <footer class="bg-white border-t border-sky-100 py-4 text-center text-xs text-slate-500 mt-10">
+      <p class="font-bold text-slate-700">منصة شغف • مجمع أم كلثوم الثانوي</p>
+      <p class="text-sky-600 font-bold mt-0.5">إعداد وتطوير الطالبة: بسمة دان • مشروع مشارك في جائزة الأميرة صيتة بنت عبدالعزيز</p>
+    </footer>
+  </div>
+
+  <!-- نافذة عرض الصور المكبرة -->
+  <div id="image-modal" onclick="this.classList.add('hidden')" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <img id="modal-img-src" src="" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl" />
+  </div>
+
+  <script>
+    // ==================== التصنيفات الـ 17 لقسم موهبة ====================
+    const TALENT_CATEGORIES = [
+      { id: 'art', name: 'الرسم والفنون', icon: '🎨' },
+      { id: 'coding', name: 'البرمجة والتقنية', icon: '💻' },
+      { id: 'photo', name: 'التصوير', icon: '📷' },
+      { id: 'writing', name: 'الكتابة والتأليف', icon: '✍🏻' },
+      { id: 'speaking', name: 'الإلقاء والتقديم', icon: '🎤' },
+      { id: 'acting', name: 'التمثيل والأداء', icon: '🎭' },
+      { id: 'music', name: 'الموسيقى', icon: '🎼' },
+      { id: 'science', name: 'الابتكار والعلوم', icon: '🧪' },
+      { id: 'crafts', name: 'الحرف والأعمال اليدوية', icon: '🧵' },
+      { id: 'thinking', name: 'التفكير وحل المشكلات', icon: '🧠' },
+      { id: 'sports', name: 'الرياضة', icon: '🏆' },
+      { id: 'cooking', name: 'الطبخ وصناعة الحلويات', icon: '🍰' },
+      { id: 'languages', name: 'اللغات', icon: '🗣️' },
+      { id: 'design', name: 'التصميم والهندسة', icon: '🏗️' },
+      { id: 'env', name: 'البيئة والزراعة', icon: '🌱' },
+      { id: 'business', name: 'ريادة الأعمال', icon: '💡' },
+      { id: 'other', name: 'مجالات أخرى', icon: '🌟' }
+    ];
+
+    // ==================== أسئلة اختبار اكتشف موهبتك ====================
+    const QUIZ_QUESTIONS = [
+      {
+        q: "إذا أُعطيتِ يوماً كاملاً لتجربة شيء جديد، ماذا تختارين؟",
+        options: [
+          { text: "🎨 أصمم أو أرسم شيئاً إبداعياً", tags: ['art', 'design', 'crafts'] },
+          { text: "💻 أجرب البرمجة أو بناء تطبيق", tags: ['coding', 'thinking'] },
+          { text: "🧪 أكتشف وأجرب تجارب علمية", tags: ['science', 'env'] },
+          { text: "✍🏻 أكتب قصة أو مقالاً ملهماً", tags: ['writing', 'languages'] },
+          { text: "🎤 أتحدث أمام الآخرين وأقدم عرضاً", tags: ['speaking', 'acting'] },
+          { text: "📷 أصور وأوثق اللحظات الجميلة", tags: ['photo', 'art'] }
+        ]
+      },
+      {
+        q: "أي شيء يشعركِ بالحماس أكثر؟",
+        options: [
+          { text: "أن أبتكر شيئاً لم يسبق لي تجربته", tags: ['science', 'coding', 'business'] },
+          { text: "أن أعبّر عن أفكاري بطريقة فنية", tags: ['art', 'writing', 'music'] },
+          { text: "أن أحقق هدفاً بدنياً أو تحدياً رياضياً", tags: ['sports', 'thinking'] },
+          { text: "أن أقود فريقاً وأرتب العمل بذكاء", tags: ['business', 'speaking'] },
+          { text: "أن أصنع شيئاً لذيذاً أو يدوياً بيدي", tags: ['cooking', 'crafts'] }
+        ]
+      },
+      {
+        q: "إذا واجهتِ مشكلة، ما أول شيء تميلين إلى فعله؟",
+        options: [
+          { text: "أفكر في حل مختلف وغير تقليدي", tags: ['thinking', 'design', 'coding'] },
+          { text: "أبحث عن المعلومات والتجارب العلمية", tags: ['science', 'languages'] },
+          { text: "أستشير الآخرين وأتعاون معهم", tags: ['speaking', 'business'] },
+          { text: "أرسم مخططاً أو أرتب الخطوات بصرياً", tags: ['design', 'art'] }
+        ]
+      },
+      {
+        q: "أي بيئة تشعرين أنكِ تستمتعين فيها أكثر؟",
+        options: [
+          { text: "بيئة مليئة بالأفكار والألوان والإبداع", tags: ['art', 'crafts', 'photo'] },
+          { text: "بيئة تقنية وأجهزة حديثة", tags: ['coding', 'design'] },
+          { text: "بيئة طبيعية أو مختبر تجارب", tags: ['env', 'science'] },
+          { text: "بيئة اجتماعية وتفاعلية مع الجمهور", tags: ['acting', 'speaking', 'sports'] },
+          { text: "بيئة هادئة أركز فيها على القراءة أو الكتابة", tags: ['writing', 'languages', 'thinking'] }
+        ]
+      },
+      {
+        q: "لو كان بإمكانكِ تعلم مهارة جديدة الآن، ماذا تختارين؟",
+        options: [
+          { text: "تطوير التطبيقات والذكاء الاصطناعي", tags: ['coding', 'thinking'] },
+          { text: "التصميم الجرافيكي والرسم الرقمي", tags: ['art', 'design'] },
+          { text: "التصوير الفوتوغرافي والمونتاج", tags: ['photo', 'acting'] },
+          { text: "فن الإلقاء واللغات العالمية", tags: ['speaking', 'languages'] },
+          { text: "إدارة المشاريع وريادة الأعمال", tags: ['business', 'cooking'] }
+        ]
+      }
+    ];
+
+    // ==================== إدارة قاعدة البيانات المحلية الدائمة ====================
+    const DB_KEY = 'shaghaf_db_v3';
+
+    function loadDB() {
+      const saved = localStorage.getItem(DB_KEY);
+      if (saved) return JSON.parse(saved);
+
+      const initialDB = {
+        users: [
+          {
+            id: 'u_student_demo',
+            role: 'student',
+            name: 'بسمة دان يوسف',
+            grade: 'ثالث ثانوي',
+            username: 'basma',
+            email: 'basma@school.edu.sa',
+            password: '123',
+            bio: 'طالبة شغوفة بالتقنية والعمل التطوعي والإبداع المدرسي ✨',
+            avatar: '✨',
+            avatarImg: '',
+            coverBg: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+            coverImg: '',
+            interests: ['coding', 'art', 'science']
+          },
+          {
+            id: 'u_teacher_demo',
+            role: 'teacher',
+            name: 'أ. رشا الزهراني',
+            specialty: 'مشرفة النشاط الطلابي والموهوبات',
+            username: 'teacher',
+            email: 'teacher@moe.gov.sa',
+            password: '123',
+            bio: 'معلمة ومشرفة على مبادرات الطالبات في مجمع أم كلثوم الثانوي 🌸',
+            avatar: '👩‍🏫',
+            avatarImg: '',
+            coverBg: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+            coverImg: ''
+          }
+        ],
+        opportunities: [], // تبدأ فارغة تماماً بدون أي بيانات وهمية
+        participations: [],
+        starStudent: null,
+        talents: [],
+        chatMessages: {
+          art: [{ id: 'm1', userName: 'بسمة دان يوسف', text: 'أهلاً بالمبدعات في مساحة الرسم! شاركونا أفكاركم للوحة اليوم الوطني 🎨', time: 'الآن' }],
+          coding: [{ id: 'm2', userName: 'بسمة دان يوسف', text: 'من حابة نتعاون في فكرة مشروع تقني للمدرسة؟ 💻', time: 'الآن' }]
+        }
+      };
+      saveDB(initialDB);
+      return initialDB;
+    }
+
+    function saveDB(data) {
+      localStorage.setItem(DB_KEY, JSON.stringify(data));
+    }
+
+    let db = loadDB();
+    let currentUser = null;
+    let currentStudentTab = 'home';
+    let currentTeacherTab = 'dashboard';
+    let selectedTalentCategory = 'all';
+    let talentSubView = 'hub'; // hub | gallery | quiz | community
+    let quizAnswers = [];
+    let quizResultTags = [];
+    let activeChatCat = 'art';
+
+    // ==================== تهيئة الشعارات عند التحميل ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      const tpl = document.getElementById('logo-template').innerHTML;
+      document.getElementById('auth-logo-box').innerHTML = tpl;
+      document.getElementById('header-logo-box').innerHTML = tpl;
+    });
+
+    // ==================== المصادقة والدخول ====================
+    function switchAuthMode(mode) {
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      const btnLogin = document.getElementById('btn-show-login');
+      const btnReg = document.getElementById('btn-show-register');
+
+      if (mode === 'login') {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        btnLogin.classList.add('tab-active');
+        btnLogin.classList.remove('text-sky-700');
+        btnReg.classList.remove('tab-active');
+        btnReg.classList.add('text-sky-700');
+      } else {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        btnReg.classList.add('tab-active');
+        btnReg.classList.remove('text-sky-700');
+        btnLogin.classList.remove('tab-active');
+        btnLogin.classList.add('text-sky-700');
+      }
+    }
+
+    function toggleRoleFields() {
+      const role = document.querySelector('input[name="reg-role"]:checked').value;
+      document.getElementById('student-fields').classList.toggle('hidden', role !== 'student');
+      document.getElementById('teacher-fields').classList.toggle('hidden', role !== 'teacher');
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const role = document.querySelector('input[name="reg-role"]:checked').value;
+      const username = document.getElementById('reg-username').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      const errEl = document.getElementById('reg-error');
+
+      if (db.users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        errEl.textContent = 'اسم المستخدم مستخدم مسبقاً، جربي اسماً آخر.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const name = role === 'student'
+        ? document.getElementById('reg-student-name').value.trim()
+        : document.getElementById('reg-teacher-name').value.trim();
+
+      if (!name) {
+        errEl.textContent = 'يرجى إدخال الاسم.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const newUser = {
+        id: 'u_' + Date.now(),
+        role,
+        name,
+        grade: role === 'student' ? document.getElementById('reg-grade').value : '',
+        specialty: role === 'teacher' ? (document.getElementById('reg-specialty').value.trim() || 'معلمة') : '',
+        username,
+        email,
+        password,
+        bio: role === 'student' ? 'طالبة في مجمع أم كلثوم الثانوي ✨' : 'معلمة في مجمع أم كلثوم الثانوي 🌸',
+        avatar: role === 'student' ? '👩‍🎓' : '👩‍🏫',
+        avatarImg: '',
+        coverBg: 'linear-gradient(135deg, #38bdf8, #bae6fd)',
+        coverImg: '',
+        interests: []
+      };
+
+      db.users.push(newUser);
+      saveDB(db);
+      errEl.classList.add('hidden');
+      enterApp(newUser);
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      const errEl = document.getElementById('login-error');
+
+      const user = db.users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+      if (!user) {
+        errEl.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      errEl.classList.add('hidden');
+      enterApp(user);
+    }
+
+    function quickDemoLogin(role) {
+      const user = db.users.find(u => u.role === role);
+      if (user) enterApp(user);
+    }
+
+    function enterApp(user) {
+      currentUser = user;
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+
+      const badge = document.getElementById('header-user-badge');
+      badge.textContent = user.role === 'student' ? `👩‍🎓 ${user.name} (${user.grade})` : `👩‍🏫 ${user.name}`;
+      badge.classList.remove('hidden');
+
+      if (user.role === 'student') {
+        document.getElementById('student-nav').classList.remove('hidden');
+        document.getElementById('teacher-nav').classList.add('hidden');
+        switchStudentTab('home');
+      } else {
+        document.getElementById('teacher-nav').classList.remove('hidden');
+        document.getElementById('student-nav').classList.add('hidden');
+        switchTeacherTab('dashboard');
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('main-app').classList.add('hidden');
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+
+    // ==================== دوال مساعدة ====================
+    function isExpired(endDateStr) {
+      if (!endDateStr) return false;
+      const today = new Date().toISOString().split('T')[0];
+      return endDateStr < today;
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function openImageModal(src) {
+      document.getElementById('modal-img-src').src = src;
+      document.getElementById('image-modal').classList.remove('hidden');
+    }
+
+    // ==================== واجهة الطالبة ====================
+    function switchStudentTab(tab) {
+      currentStudentTab = tab;
+      document.querySelectorAll('.stab-btn').forEach(btn => {
+        if (btn.dataset.stab === tab) {
+          btn.classList.add('tab-active');
+          btn.classList.remove('text-slate-600');
+        } else {
+          btn.classList.remove('tab-active');
+          btn.classList.add('text-slate-600');
+        }
+      });
+      if (tab === 'talent') talentSubView = 'hub';
+      renderStudentView();
+    }
+
+    function renderStudentView() {
+      const container = document.getElementById('app-content');
+      const activeOpps = db.opportunities.filter(o => !isExpired(o.endDate));
+
+      if (currentStudentTab === 'home') {
+        const myParts = db.participations.filter(p => p.studentId === currentUser.id);
+        const approvedHours = myParts
+          .filter(p => p.status === 'approved' || p.status === 'winner')
+          .reduce((sum, p) => {
+            const opp = db.opportunities.find(o => o.id === p.oppId);
+            return sum + (opp ? Number(opp.hours || 0) : 0);
+          }, 0);
+
+        container.innerHTML = `
+          <div class="space-y-6">
+            <!-- ترحيب -->
+            <div class="sky-gradient rounded-3xl p-6 sm:p-8 border border-sky-100 card-shadow flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <span class="px-3 py-1 bg-white text-sky-700 text-xs font-extrabold rounded-full shadow-sm">أهلاً بكِ في مجتمعك المدرسي ✨</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-800 mt-3">مرحباً، ${currentUser.name}</h2>
+                <p class="text-slate-600 text-sm mt-1">استكشفي الفرص المتاحة، طوّري موهبتك، واصنعي أثراً يُخلّد في مجمع أم كلثوم الثانوي.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-3 w-full sm:w-auto">
+                <div class="bg-white p-4 rounded-2xl text-center border border-sky-100">
+                  <div class="text-2xl font-black text-sky-600">${approvedHours}</div>
+                  <div class="text-xs font-bold text-slate-500">ساعة تطوعية معتمدة</div>
+                </div>
+                <div class="bg-white p-4 rounded-2xl text-center border border-sky-100">
+                  <div class="text-2xl font-black text-indigo-600">${myParts.length}</div>
+                  <div class="text-xs font-bold text-slate-500">مشاركاتي المسجلة</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- لوحة الشرف (أفضل طالبة) -->
+            ${db.starStudent ? `
+              <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-3xl p-5 flex items-center gap-4 card-shadow">
+                <div class="text-4xl">👑</div>
+                <div>
+                  <span class="text-xs font-extrabold text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full">نجمة التميز في مجمع أم كلثوم</span>
+                  <h3 class="text-lg font-black text-slate-800 mt-1">${db.starStudent.studentName}</h3>
+                  <p class="text-sm text-slate-600">${db.starStudent.reason}</p>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- أحدث الفرص المتاحة -->
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-black text-slate-800">🔥 أحدث الفرص والمسابقات المتاحة</h3>
+                <span class="text-xs text-slate-400 font-bold">تُخفى الفرص المنتهية تلقائياً</span>
+              </div>
+              ${activeOpps.length === 0 ? `
+                <div class="bg-white rounded-3xl p-10 text-center border border-sky-100">
+                  <div class="text-4xl mb-2">📭</div>
+                  <p class="font-bold text-slate-600">لا توجد مبادرات أو مسابقات منشورة حالياً.</p>
+                  <p class="text-xs text-slate-400 mt-1">بمجرد إطلاق المعلمة لأي فرصة ستظهر هنا فوراً!</p>
+                </div>
+              ` : `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  ${activeOpps.map(opp => renderOppCard(opp)).join('')}
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      } else if (['initiatives', 'volunteering', 'competitions'].includes(currentStudentTab)) {
+        const typeMap = { initiatives: 'مبادرة', volunteering: 'تطوع', competitions: 'مسابقة' };
+        const targetType = typeMap[currentStudentTab];
+        const filtered = activeOpps.filter(o => o.type === targetType);
+
+        container.innerHTML = `
+          <div>
+            <h2 class="text-2xl font-black text-slate-800 mb-4">قسم ${targetType === 'تطوع' ? 'الفرص التطوعية' : targetType === 'مبادرة' ? 'المبادرات المدرسية' : 'المسابقات'}</h2>
+            ${filtered.length === 0 ? `
+              <div class="bg-white rounded-3xl p-12 text-center border border-sky-100">
+                <p class="font-bold text-slate-600">لا توجد فرص متاحة في هذا القسم حالياً.</p>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                ${filtered.map(opp => renderOppCard(opp)).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      } else if (currentStudentTab === 'talent') {
+        renderTalentSection(container);
+      } else if (currentStudentTab === 'profile') {
+        renderProfileView(container);
+      }
+    }
+
+    function renderOppCard(opp) {
+      const alreadyJoined = db.participations.some(p => p.oppId === opp.id && p.studentId === currentUser.id);
+      const badgeColors = {
+        'مبادرة': 'bg-sky-100 text-sky-700',
+        'تطوع': 'bg-emerald-100 text-emerald-700',
+        'مسابقة': 'bg-amber-100 text-amber-700'
+      };
+
+      return `
+        <div class="bg-white rounded-3xl overflow-hidden border border-sky-100 card-shadow flex flex-col justify-between">
+          <div>
+            ${opp.image ? `
+              <img src="${opp.image}" onclick="openImageModal('${opp.image}')" class="w-full h-48 object-cover cursor-zoom-in border-b border-sky-50" alt="${opp.title}" />
+            ` : ''}
+            <div class="p-5">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-3 py-1 rounded-full text-xs font-extrabold ${badgeColors[opp.type] || 'bg-sky-100 text-sky-700'}">${opp.type}</span>
+                ${opp.hours > 0 ? `<span class="text-xs font-extrabold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full">⏱️ ${opp.hours} ساعات</span>` : ''}
+              </div>
+              <h4 class="text-lg font-black text-slate-800">${opp.title}</h4>
+              ${opp.desc ? `<p class="text-sm text-slate-600 mt-1.5 leading-relaxed">${opp.desc}</p>` : ''}
+              <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                <div>👩‍🏫 إشراف: <span class="font-bold text-slate-700">${opp.teacherName}</span></div>
+                ${opp.startDate ? `<div>📅 يبدأ: ${opp.startDate}</div>` : ''}
+                ${opp.endDate ? `<div>⏳ ينتهي / التسليم: <span class="font-bold text-rose-600">${opp.endDate}</span></div>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="px-5 pb-5">
+            ${alreadyJoined ? `
+              <button disabled class="w-full py-2.5 rounded-xl bg-emerald-50 text-emerald-700 font-extrabold text-sm border border-emerald-200">✅ تم تسجيل مشاركتكِ</button>
+            ` : `
+              <button onclick="joinOpportunity('${opp.id}')" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-sm shadow transition">سجّلي وشاركي الآن</button>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    function joinOpportunity(oppId) {
+      db.participations.push({
+        id: 'p_' + Date.now(),
+        oppId,
+        studentId: currentUser.id,
+        studentName: currentUser.name,
+        studentGrade: currentUser.grade,
+        status: 'pending',
+        joinedAt: new Date().toLocaleDateString('ar-SA')
+      });
+      saveDB(db);
+      renderStudentView();
+    }
+
+    // ==================== قسم موهبة المتكامل ====================
+    function renderTalentSection(container) {
+      if (talentSubView === 'hub') {
+        container.innerHTML = `
+          <div class="space-y-6">
+            <div class="sky-gradient rounded-3xl p-8 text-center border border-sky-100 card-shadow">
+              <h2 class="text-2xl sm:text-3xl font-black text-slate-800">✨ اكتشفي وأظهري موهبتك</h2>
+              <p class="text-sky-700 font-bold mt-2">كل موهبة تستحق مساحة لتُرى</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow flex flex-col justify-between">
+                <div>
+                  <div class="text-4xl mb-3">🎨</div>
+                  <h3 class="text-xl font-black text-slate-800">معرض المواهب</h3>
+                  <p class="text-sm text-slate-600 mt-2">اكتشفي إبداعات الطالبات حسب 17 مجالاً فنياً وتقنياً وعلمياً، وشاركي أعمالكِ.</p>
+                </div>
+                <button onclick="talentSubView='gallery'; renderStudentView()" class="mt-6 w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-extrabold text-sm transition">استكشاف المعرض</button>
+              </div>
+
+              <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow flex flex-col justify-between">
+                <div>
+                  <div class="text-4xl mb-3">🔍</div>
+                  <h3 class="text-xl font-black text-slate-800">اكتشف موهبتك</h3>
+                  <p class="text-sm text-slate-600 mt-2">أسئلة تفاعلية ممتعة تساعدكِ على اكتشاف المجالات التي تناسب شخصيتكِ وميولكِ.</p>
+                </div>
+                <button onclick="quizAnswers=[]; quizResultTags=[]; talentSubView='quiz'; renderStudentView()" class="mt-6 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm transition">ابدئي الاختبار</button>
+              </div>
+
+              <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow flex flex-col justify-between">
+                <div>
+                  <div class="text-4xl mb-3">🤝</div>
+                  <h3 class="text-xl font-black text-slate-800">نفس اهتماماتي</h3>
+                  <p class="text-sm text-slate-600 mt-2">اكتشفي طالبات يشاركنكِ الاهتمامات وتعاوني معهن في المشاريع عبر مساحات نقاش آمنة.</p>
+                </div>
+                <button onclick="talentSubView='community'; renderStudentView()" class="mt-6 w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm transition">اكتشفي مجتمعك</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (talentSubView === 'gallery') {
+        const filteredPosts = selectedTalentCategory === 'all'
+          ? db.talents
+          : db.talents.filter(t => t.category === selectedTalentCategory);
+
+        container.innerHTML = `
+          <div class="space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <button onclick="talentSubView='hub'; renderStudentView()" class="px-4 py-2 rounded-xl bg-white border border-sky-200 text-sky-700 font-bold text-sm">→ العودة لبوابة موهبة</button>
+              <button onclick="document.getElementById('new-talent-box').classList.toggle('hidden')" class="px-5 py-2.5 rounded-xl bg-sky-600 text-white font-extrabold text-sm shadow">+ إضافة مشاركة إبداعية</button>
+            </div>
+
+            <!-- نموذج إضافة عمل جديد -->
+            <form id="new-talent-box" onsubmit="handlePostTalent(event)" class="hidden bg-white rounded-3xl p-6 border border-sky-200 card-shadow space-y-4">
+              <h3 class="text-lg font-black text-slate-800">✨ انشري إبداعكِ في معرض المواهب</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">المجال</label>
+                  <select id="talent-cat" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm bg-white">
+                    ${TALENT_CATEGORIES.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">عنوان العمل</label>
+                  <input type="text" id="talent-title" required placeholder="مثال: لوحة من عالم الخيال" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">وصف بسيط (اختياري)</label>
+                <textarea id="talent-desc" rows="2" placeholder="اكتبي نبذة عن عملكِ..." class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">صور العمل (يمكنكِ اختيار أكثر من صورة)</label>
+                <input type="file" id="talent-images" accept="image/*" multiple required class="w-full text-sm text-slate-600 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-sky-50 file:text-sky-700 file:font-bold" />
+              </div>
+              <button type="submit" class="px-6 py-2.5 bg-sky-600 text-white font-extrabold rounded-xl text-sm">نشر في المعرض</button>
+            </form>
+
+            <!-- شريط التصنيفات الـ 17 -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2">
+              <button onclick="selectedTalentCategory='all'; renderStudentView()" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border ${selectedTalentCategory === 'all' ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600 border-sky-100'}">الكل (${db.talents.length})</button>
+              ${TALENT_CATEGORIES.map(c => `
+                <button onclick="selectedTalentCategory='${c.id}'; renderStudentView()" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold whitespace-nowrap border ${selectedTalentCategory === c.id ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600 border-sky-100'}">${c.icon} ${c.name}</button>
+              `).join('')}
+            </div>
+
+            <!-- عرض المنشورات -->
+            ${filteredPosts.length === 0 ? `
+              <div class="bg-white rounded-3xl p-12 text-center border border-sky-100">
+                <div class="text-4xl mb-2">🎨</div>
+                <p class="font-bold text-slate-600">لا توجد أعمال منشورة في هذا التصنيف بعد. كوني أول المبدعات!</p>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${filteredPosts.map(post => renderTalentPostCard(post)).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      } else if (talentSubView === 'quiz') {
+        renderTalentQuiz(container);
+      } else if (talentSubView === 'community') {
+        renderTalentCommunity(container);
+      }
+    }
+
+    async function handlePostTalent(e) {
+      e.preventDefault();
+      const cat = document.getElementById('talent-cat').value;
+      const title = document.getElementById('talent-title').value.trim();
+      const desc = document.getElementById('talent-desc').value.trim();
+      const files = document.getElementById('talent-images').files;
+
+      const images = [];
+      for (let i = 0; i < files.length; i++) {
+        images.push(await readFileAsBase64(files[i]));
+      }
+
+      db.talents.unshift({
+        id: 't_' + Date.now(),
+        authorId: currentUser.id,
+        authorName: currentUser.name,
+        authorGrade: currentUser.grade,
+        category: cat,
+        title,
+        desc,
+        images,
+        likes: [],
+        comments: [],
+        reported: false,
+        createdAt: new Date().toLocaleDateString('ar-SA')
+      });
+
+      if (!currentUser.interests.includes(cat)) {
+        currentUser.interests.push(cat);
+        const uIdx = db.users.findIndex(u => u.id === currentUser.id);
+        if (uIdx !== -1) db.users[uIdx] = currentUser;
+      }
+
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function renderTalentPostCard(post) {
+      const catObj = TALENT_CATEGORIES.find(c => c.id === post.category) || { icon: '✨', name: 'موهبة' };
+      const isLiked = post.likes.includes(currentUser.id);
+
+      return `
+        <div class="bg-white rounded-3xl border border-sky-100 card-shadow overflow-hidden flex flex-col justify-between">
+          <div>
+            <!-- رأس المنشور -->
+            <div class="p-4 flex items-center justify-between border-b border-slate-50">
+              <div>
+                <div class="font-extrabold text-sm text-slate-800">${post.authorName} <span class="text-xs text-slate-400 font-normal">(${post.authorGrade})</span></div>
+                <span class="text-xs font-bold text-sky-600">${catObj.icon} معرض ${catObj.name}</span>
+              </div>
+              <button onclick="reportTalentPost('${post.id}')" title="إبلاغ عن محتوى غير مناسب" class="text-xs px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition">🚩 إبلاغ</button>
+            </div>
+
+            <!-- الصور -->
+            <div class="grid ${post.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-1 bg-slate-100">
+              ${post.images.map(img => `
+                <img src="${img}" onclick="openImageModal('${img}')" class="w-full h-56 object-cover cursor-zoom-in" />
+              `).join('')}
+            </div>
+
+            <!-- التفاصيل -->
+            <div class="p-4">
+              <h4 class="font-black text-base text-slate-800">${post.title}</h4>
+              ${post.desc ? `<p class="text-sm text-slate-600 mt-1">${post.desc}</p>` : ''}
+
+              <!-- التفاعل -->
+              <div class="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100">
+                <button onclick="toggleLikePost('${post.id}')" class="flex items-center gap-1.5 text-sm font-extrabold ${isLiked ? 'text-rose-600' : 'text-slate-500 hover:text-rose-600'}">
+                  ${isLiked ? '❤️' : '🤍'} ${post.likes.length} إعجاباً
+                </button>
+                <span class="text-sm font-bold text-slate-500">💬 ${post.comments.length} تعليقات</span>
+              </div>
+
+              <!-- التعليقات -->
+              <div class="mt-3 space-y-2.5 max-h-48 overflow-y-auto">
+                ${post.comments.map(c => `
+                  <div class="bg-sky-50/60 rounded-2xl p-3 text-xs">
+                    <div class="flex items-center justify-between">
+                      <span class="font-extrabold text-slate-800">${c.userName}: <span class="font-normal text-slate-700">${c.text}</span></span>
+                      <div class="flex items-center gap-2">
+                        <button onclick="toggleLikeComment('${post.id}', '${c.id}')" class="text-rose-500 font-bold">❤️ ${c.likes.length}</button>
+                        <button onclick="replyToComment('${post.id}', '${c.id}')" class="text-sky-600 font-bold">↩️ رد</button>
+                        ${c.userId === currentUser.id ? `<button onclick="deleteComment('${post.id}', '${c.id}')" class="text-slate-400 hover:text-rose-600">🗑️</button>` : ''}
+                      </div>
+                    </div>
+                    ${(c.replies || []).map(r => `
+                      <div class="mt-1.5 mr-3 pr-2 border-r-2 border-sky-300 text-slate-600">
+                        ↳ <span class="font-extrabold text-sky-700">${r.userName}:</span> ${r.text}
+                      </div>
+                    `).join('')}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- إضافة تعليق -->
+          <form onsubmit="addComment(event, '${post.id}')" class="p-3 bg-slate-50 border-t border-slate-100 flex gap-2">
+            <input type="text" id="comment-input-${post.id}" required placeholder="اكتبي تعليقاً مشجعاً..." class="flex-1 px-3 py-2 rounded-xl border border-sky-100 text-xs focus:outline-none bg-white" />
+            <button type="submit" class="px-3.5 py-2 bg-sky-600 text-white rounded-xl text-xs font-bold">إرسال</button>
+          </form>
+        </div>
+      `;
+    }
+
+    function toggleLikePost(postId) {
+      const post = db.talents.find(t => t.id === postId);
+      if (!post) return;
+      const idx = post.likes.indexOf(currentUser.id);
+      if (idx === -1) post.likes.push(currentUser.id);
+      else post.likes.splice(idx, 1);
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function addComment(e, postId) {
+      e.preventDefault();
+      const input = document.getElementById(`comment-input-${postId}`);
+      const text = input.value.trim();
+      if (!text) return;
+      const post = db.talents.find(t => t.id === postId);
+      post.comments.push({
+        id: 'c_' + Date.now(),
+        userId: currentUser.id,
+        userName: currentUser.name,
+        text,
+        likes: [],
+        replies: []
+      });
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function toggleLikeComment(postId, commentId) {
+      const post = db.talents.find(t => t.id === postId);
+      const comment = post.comments.find(c => c.id === commentId);
+      const idx = comment.likes.indexOf(currentUser.id);
+      if (idx === -1) comment.likes.push(currentUser.id);
+      else comment.likes.splice(idx, 1);
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function replyToComment(postId, commentId) {
+      const replyText = prompt('اكتبي ردكِ على التعليق:');
+      if (!replyText || !replyText.trim()) return;
+      const post = db.talents.find(t => t.id === postId);
+      const comment = post.comments.find(c => c.id === commentId);
+      comment.replies.push({
+        userName: post.authorId === currentUser.id ? `صاحبة المنشور (${currentUser.name})` : currentUser.name,
+        text: replyText.trim()
+      });
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function deleteComment(postId, commentId) {
+      const post = db.talents.find(t => t.id === postId);
+      post.comments = post.comments.filter(c => c.id !== commentId);
+      saveDB(db);
+      renderStudentView();
+    }
+
+    function reportTalentPost(postId) {
+      const post = db.talents.find(t => t.id === postId);
+      if (post) {
+        post.reported = true;
+        saveDB(db);
+        alert('تم إرسال البلاغ للمعلمة المشرفة لمراجعة المحتوى والحفاظ على سلامة المنصة.');
+      }
+    }
+
+    // ==================== اختبار اكتشف موهبتك ====================
+    function renderTalentQuiz(container) {
+      if (quizResultTags.length > 0) {
+        const matchedCats = quizResultTags.map(id => TALENT_CATEGORIES.find(c => c.id === id)).filter(Boolean);
+        container.innerHTML = `
+          <div class="max-w-2xl mx-auto bg-white rounded-3xl p-8 border border-sky-100 card-shadow text-center space-y-5">
+            <div class="text-5xl">🌟</div>
+            <h2 class="text-2xl font-black text-slate-800">نتيجتكِ: مجالات إبداعكِ الأقرب لشخصيتكِ</h2>
+            <p class="text-sm text-slate-600 leading-relaxed">بناءً على اختياراتكِ، يبدو أنكِ تمتلكين شغفاً وحضوراً مميزاً في المجالات التالية:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-right">
+              ${matchedCats.map(c => `
+                <div class="p-4 rounded-2xl bg-sky-50 border border-sky-200 font-extrabold text-sky-900 text-sm flex items-center gap-2">
+                  <span class="text-2xl">${c.icon}</span> ${c.name}
+                </div>
+              `).join('')}
+            </div>
+            <p class="text-xs text-slate-400">قد تكون هذه المجالات نقطة بداية رائعة لاكتشاف مواهبكِ، جرّبيها واكتشفي بنفسكِ!</p>
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+              <button onclick="talentSubView='community'; renderStudentView()" class="px-6 py-3 rounded-xl bg-emerald-600 text-white font-extrabold text-sm">🤝 استكشفي زميلاتكِ بنفس الاهتمام</button>
+              <button onclick="talentSubView='gallery'; renderStudentView()" class="px-6 py-3 rounded-xl bg-sky-600 text-white font-extrabold text-sm">🎨 تصفحي معرض المواهب</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const step = quizAnswers.length;
+      const currentQ = QUIZ_QUESTIONS[step];
+
+      container.innerHTML = `
+        <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-sky-100 card-shadow">
+          <div class="flex items-center justify-between mb-4">
+            <button onclick="talentSubView='hub'; renderStudentView()" class="text-xs font-bold text-slate-400 hover:text-sky-600">✕ إلغاء</button>
+            <span class="text-xs font-extrabold text-sky-600 bg-sky-50 px-3 py-1 rounded-full">السؤال ${step + 1} من ${QUIZ_QUESTIONS.length}</span>
+          </div>
+          <h3 class="text-xl font-black text-slate-800 mb-6">${currentQ.q}</h3>
+          <div class="space-y-3">
+            ${currentQ.options.map((opt, i) => `
+              <button onclick="answerQuiz(${i})" class="w-full text-right p-4 rounded-2xl border border-sky-100 hover:border-sky-400 hover:bg-sky-50 font-bold text-sm text-slate-700 transition">
+                ${opt.text}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function answerQuiz(optionIdx) {
+      const currentQ = QUIZ_QUESTIONS[quizAnswers.length];
+      quizAnswers.push(currentQ.options[optionIdx].tags);
+
+      if (quizAnswers.length === QUIZ_QUESTIONS.length) {
+        const counts = {};
+        quizAnswers.flat().forEach(tag => { counts[tag] = (counts[tag] || 0) + 1; });
+        quizResultTags = Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(entry => entry[0]);
+
+        currentUser.interests = Array.from(new Set([...(currentUser.interests || []), ...quizResultTags]));
+        const uIdx = db.users.findIndex(u => u.id === currentUser.id);
+        if (uIdx !== -1) db.users[uIdx] = currentUser;
+        saveDB(db);
+      }
+      renderStudentView();
+    }
+
+    // ==================== مجتمع نفس اهتماماتي ====================
+    function renderTalentCommunity(container) {
+      const peers = db.users.filter(u => u.role === 'student' && u.id !== currentUser.id);
+      const msgs = db.chatMessages[activeChatCat] || [];
+
+      container.innerHTML = `
+        <div class="space-y-6">
+          <button onclick="talentSubView='hub'; renderStudentView()" class="px-4 py-2 rounded-xl bg-white border border-sky-200 text-sky-700 font-bold text-sm">→ العودة لبوابة موهبة</button>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- طالبات يشاركنك الاهتمامات -->
+            <div class="bg-white rounded-3xl p-5 border border-sky-100 card-shadow space-y-4">
+              <h3 class="font-black text-lg text-slate-800">🤝 طالبات يشاركنكِ الاهتمامات</h3>
+              ${peers.length === 0 ? `<p class="text-xs text-slate-400">عند تسجيل طالبات أخريات ستظهر ملفاتهن هنا للتعاون المشترك.</p>` : peers.map(p => `
+                <div class="p-3.5 rounded-2xl bg-sky-50/60 border border-sky-100">
+                  <div class="font-extrabold text-sm text-slate-800">${p.name} <span class="text-xs text-sky-600">(${p.grade})</span></div>
+                  <p class="text-xs text-slate-500 mt-1">${p.bio || ''}</p>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    ${(p.interests || []).map(id => {
+                      const c = TALENT_CATEGORIES.find(x => x.id === id);
+                      return c ? `<span class="text-[10px] px-2 py-0.5 bg-white rounded-full font-bold text-sky-700 border border-sky-100">${c.icon} ${c.name}</span>` : '';
+                    }).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- مساحة نقاش جماعية آمنة ومراقبة -->
+            <div class="lg:col-span-2 bg-white rounded-3xl border border-sky-100 card-shadow flex flex-col overflow-hidden">
+              <div class="p-4 bg-sky-50 border-b border-sky-100 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 class="font-black text-base text-slate-800">💬 مساحة النقاش والتعاون الجماعي الآمنة</h3>
+                  <span class="text-[11px] text-sky-700 font-bold">مراقبة إشرافياً لتبادل الخبرات وتكوين فرق المشاريع</span>
+                </div>
+                <select onchange="activeChatCat=this.value; renderStudentView()" class="px-3 py-1.5 rounded-xl border border-sky-200 text-xs font-bold bg-white">
+                  ${TALENT_CATEGORIES.map(c => `<option value="${c.id}" ${activeChatCat === c.id ? 'selected' : ''}>${c.icon} مجموعة ${c.name}</option>`).join('')}
+                </select>
+              </div>
+              <div class="p-4 space-y-3 h-72 overflow-y-auto bg-slate-50/40">
+                ${msgs.length === 0 ? `<p class="text-center text-xs text-slate-400 mt-10">ابدئي النقاش مع زميلاتكِ في هذا المجال!</p>` : msgs.map(m => `
+                  <div class="bg-white p-3 rounded-2xl border border-sky-100 shadow-sm">
+                    <div class="flex justify-between text-xs mb-1">
+                      <span class="font-extrabold text-sky-700">${m.userName}</span>
+                      <span class="text-slate-400">${m.time}</span>
+                    </div>
+                    <p class="text-sm text-slate-700">${m.text}</p>
+                  </div>
+                `).join('')}
+              </div>
+              <form onsubmit="sendGroupChat(event)" class="p-3 bg-white border-t border-sky-100 flex gap-2">
+                <input type="text" id="group-chat-input" required placeholder="اكتبي رسالة للتعاون في مشروع أو فكرة..." class="flex-1 px-4 py-2.5 rounded-xl border border-sky-100 text-sm focus:outline-none" />
+                <button type="submit" class="px-5 py-2.5 bg-sky-600 text-white font-extrabold rounded-xl text-sm">إرسال</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function sendGroupChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('group-chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      if (!db.chatMessages[activeChatCat]) db.chatMessages[activeChatCat] = [];
+      db.chatMessages[activeChatCat].push({
+        id: 'm_' + Date.now(),
+        userName: currentUser.name,
+        text,
+        time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
+      });
+      saveDB(db);
+      renderStudentView();
+    }
+
+    // ==================== لوحة تحكم المعلمة ====================
+    function switchTeacherTab(tab) {
+      currentTeacherTab = tab;
+      document.querySelectorAll('.ttab-btn').forEach(btn => {
+        if (btn.dataset.ttab === tab) {
+          btn.classList.add('tab-active');
+          btn.classList.remove('text-slate-600');
+        } else {
+          btn.classList.remove('tab-active');
+          btn.classList.add('text-slate-600');
+        }
+      });
+      renderTeacherView();
+    }
+
+    function renderTeacherView() {
+      const container = document.getElementById('app-content');
+
+      if (currentTeacherTab === 'dashboard') {
+        const students = db.users.filter(u => u.role === 'student');
+
+        container.innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- نموذج إطلاق فرصة جديدة -->
+            <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-sky-100 card-shadow">
+              <h2 class="text-xl font-black text-slate-800 mb-4">🚀 إطلاق مسابقة / مبادرة / فرصة تطوعية جديدة</h2>
+              <form onsubmit="handleCreateOpp(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">نوع الفرصة</label>
+                    <select id="opp-type" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm bg-white">
+                      <option value="مسابقة">🏆 مسابقة</option>
+                      <option value="مبادرة">💡 مبادرة</option>
+                      <option value="تطوع">🤝 فرصة تطوعية</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">عدد الساعات التطوعية المحتسبة</label>
+                    <input type="number" id="opp-hours" min="0" value="5" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الإعلان / الفرصة</label>
+                  <input type="text" id="opp-title" required placeholder="مثال: أولمبياد البرمجة والابتكار" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">صورة الإعلان من ألبوم الجهاز (اختياري - تظهر كبطاقة إعلانية واضحة للطالبة)</label>
+                  <input type="file" id="opp-image" accept="image/*" class="w-full text-sm text-slate-600 file:ml-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-sky-50 file:text-sky-700 file:font-bold" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">وصف مختصر (اختياري إذا اكتفيتِ بصورة الإعلان)</label>
+                  <textarea id="opp-desc" rows="2" placeholder="تفاصيل إضافية أو شروط المشاركة..." class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ البداية</label>
+                    <input type="date" id="opp-start" required class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">تاريخ الانتهاء / التسليم (تُخفى تلقائياً بعده)</label>
+                    <input type="date" id="opp-end" required class="w-full px-3.5 py-2.5 rounded-xl border border-sky-100 text-sm" />
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl shadow transition">نشر الفرصة لجميع الطالبات فوراً</button>
+              </form>
+            </div>
+
+            <!-- تكريم أفضل طالبة -->
+            <div class="bg-white rounded-3xl p-6 border border-amber-200 card-shadow space-y-4">
+              <h3 class="text-lg font-black text-slate-800">👑 تكريم الطالبة المتميزة / الفائزة</h3>
+              <p class="text-xs text-slate-500">تظهر لوحة التكريم في الصفحة الرئيسية لجميع طالبات المدرسة.</p>
+              <form onsubmit="handleSetStarStudent(event)" class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">اختاري الطالبة</label>
+                  <select id="star-student-name" class="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm bg-white">
+                    ${students.map(s => `<option value="${s.name}">${s.name} (${s.grade})</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">سبب التكريم / الفوز</label>
+                  <input type="text" id="star-reason" required placeholder="مثال: الفائزة بالمركز الأول في مسابقة الابتكار" class="w-full px-3 py-2.5 rounded-xl border border-amber-200 text-sm" />
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-xl text-sm">اعتماد لوحة الشرف</button>
+              </form>
+            </div>
+          </div>
+        `;
+      } else if (currentTeacherTab === 'participants') {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow">
+            <h2 class="text-xl font-black text-slate-800 mb-4">✅ سجل الطالبات المشاركات واعتماد الساعات</h2>
+            ${db.participations.length === 0 ? `
+              <p class="text-center text-slate-500 py-10 font-bold">لم تسجل أي طالبة في الفرص بعد.</p>
+            ` : `
+              <div class="overflow-x-auto">
+                <table class="w-full text-right text-sm">
+                  <thead class="bg-sky-50 text-sky-900 font-extrabold">
+                    <tr>
+                      <th class="p-3 rounded-r-xl">اسم الطالبة</th>
+                      <th class="p-3">الصف</th>
+                      <th class="p-3">الفرصة / المسابقة</th>
+                      <th class="p-3">الحالة</th>
+                      <th class="p-3 rounded-l-xl">الإجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${db.participations.map(p => {
+                      const opp = db.opportunities.find(o => o.id === p.oppId) || { title: 'فرصة محذوفة', hours: 0 };
+                      return `
+                        <tr>
+                          <td class="p-3 font-bold">${p.studentName}</td>
+                          <td class="p-3 text-slate-500">${p.studentGrade}</td>
+                          <td class="p-3 font-bold text-sky-700">${opp.title} (${opp.hours} س)</td>
+                          <td class="p-3">
+                            ${p.status === 'approved' ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">معتمد ✅</span>' :
+                              p.status === 'winner' ? '<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">فائزة 🏆</span>' :
+                              '<span class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">قيد المراجعة</span>'}
+                          </td>
+                          <td class="p-3 flex gap-2">
+                            <button onclick="updatePartStatus('${p.id}', 'approved')" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold">اعتماد الساعات</button>
+                            <button onclick="updatePartStatus('${p.id}', 'winner')" class="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-bold">تعيين كفائزة</button>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `}
+          </div>
+        `;
+      } else if (currentTeacherTab === 'moderation') {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow space-y-4">
+            <h2 class="text-xl font-black text-slate-800">🛡️ إشراف ومراجعة منشورات قسم "موهبة"</h2>
+            ${db.talents.length === 0 ? `<p class="text-slate-500 text-center py-8 font-bold">لا توجد منشورات في معرض المواهب حالياً.</p>` : `
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${db.talents.map(t => `
+                  <div class="p-4 rounded-2xl border ${t.reported ? 'border-rose-300 bg-rose-50/40' : 'border-sky-100'} flex justify-between items-start gap-3">
+                    <div>
+                      ${t.reported ? `<span class="text-xs font-extrabold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">🚩 مُبلّغ عنه</span>` : ''}
+                      <h4 class="font-black text-slate-800 mt-1">${t.title}</h4>
+                      <p class="text-xs text-slate-500">بواسطة: ${t.authorName} (${t.authorGrade})</p>
+                      <p class="text-xs text-slate-600 mt-1">${t.desc || ''}</p>
+                    </div>
+                    <button onclick="deleteTalentPost('${t.id}')" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold">حذف المنشور</button>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+        `;
+      } else if (currentTeacherTab === 'tprofile') {
+        renderProfileView(container);
+      }
+    }
+
+    async function handleCreateOpp(e) {
+      e.preventDefault();
+      const type = document.getElementById('opp-type').value;
+      const hours = Number(document.getElementById('opp-hours').value || 0);
+      const title = document.getElementById('opp-title').value.trim();
+      const desc = document.getElementById('opp-desc').value.trim();
+      const startDate = document.getElementById('opp-start').value;
+      const endDate = document.getElementById('opp-end').value;
+      const fileInput = document.getElementById('opp-image');
+
+      let image = '';
+      if (fileInput.files && fileInput.files[0]) {
+        image = await readFileAsBase64(fileInput.files[0]);
+      }
+
+      db.opportunities.unshift({
+        id: 'opp_' + Date.now(),
+        type,
+        hours,
+        title,
+        desc,
+        image,
+        startDate,
+        endDate,
+        teacherId: currentUser.id,
+        teacherName: currentUser.name
+      });
+      saveDB(db);
+      alert('تم إطلاق الفرصة بنجاح وظهرت الآن لجميع الطالبات!');
+      renderTeacherView();
+    }
+
+    function handleSetStarStudent(e) {
+      e.preventDefault();
+      db.starStudent = {
+        studentName: document.getElementById('star-student-name').value,
+        reason: document.getElementById('star-reason').value.trim()
+      };
+      saveDB(db);
+      alert('تم تحديث لوحة تكريم أفضل طالبة بنجاح!');
+    }
+
+    function updatePartStatus(partId, status) {
+      const part = db.participations.find(p => p.id === partId);
+      if (part) {
+        part.status = status;
+        saveDB(db);
+        renderTeacherView();
+      }
+    }
+
+    function deleteTalentPost(postId) {
+      db.talents = db.talents.filter(t => t.id !== postId);
+      saveDB(db);
+      renderTeacherView();
+    }
+
+    // ==================== صفحة الحساب الشخصي المتكاملة للطرفين ====================
+    function renderProfileView(container) {
+      const isStudent = currentUser.role === 'student';
+      const myParts = db.participations.filter(p => p.studentId === currentUser.id);
+      const myHours = myParts
+        .filter(p => p.status === 'approved' || p.status === 'winner')
+        .reduce((sum, p) => {
+          const opp = db.opportunities.find(o => o.id === p.oppId);
+          return sum + (opp ? Number(opp.hours || 0) : 0);
+        }, 0);
+      const myTalents = db.talents.filter(t => t.authorId === currentUser.id);
+      const myOpps = db.opportunities.filter(o => o.teacherId === currentUser.id);
+
+      container.innerHTML = `
+        <div class="max-w-3xl mx-auto space-y-6">
+          <!-- بطاقة البروفايل بأسلوب التواصل الاجتماعي -->
+          <div class="bg-white rounded-3xl overflow-hidden border border-sky-100 card-shadow">
+            <!-- صورة الغلاف / الخلفية العلوية -->
+            <div class="h-44 w-full relative" style="${currentUser.coverImg ? `background-image:url('${currentUser.coverImg}'); background-size:cover; background-position:center;` : `background:${currentUser.coverBg || 'linear-gradient(135deg, #38bdf8, #bae6fd)'}`}">
+              <button onclick="document.getElementById('edit-profile-modal').classList.toggle('hidden')" class="absolute top-4 left-4 px-4 py-2 rounded-xl bg-white/90 hover:bg-white text-slate-800 text-xs font-extrabold shadow">🎨 تخصيص الخلفية والملف</button>
+            </div>
+
+            <div class="px-6 pb-6">
+              <!-- الصورة الشخصية المتداخلة -->
+              <div class="-mt-12 mb-3 flex items-end justify-between">
+                <div class="w-24 h-24 rounded-full border-4 border-white bg-sky-100 shadow-md flex items-center justify-center text-4xl overflow-hidden">
+                  ${currentUser.avatarImg ? `<img src="${currentUser.avatarImg}" class="w-full h-full object-cover" />` : (currentUser.avatar || '✨')}
+                </div>
+                <span class="px-3 py-1 rounded-full bg-sky-50 text-sky-700 text-xs font-extrabold border border-sky-100">
+                  ${isStudent ? `👩‍🎓 طالبة • ${currentUser.grade}` : `👩‍🏫 معلمة • ${currentUser.specialty}`}
+                </span>
+              </div>
+
+              <h2 class="text-2xl font-black text-slate-800">${currentUser.name}</h2>
+              <p class="text-xs text-slate-400 font-bold mt-0.5">@${currentUser.username} • ${currentUser.email}</p>
+              <p class="text-sm text-slate-600 mt-3 leading-relaxed">${currentUser.bio || ''}</p>
+
+              <!-- الإحصائيات -->
+              <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-slate-100 text-center">
+                ${isStudent ? `
+                  <div class="p-3 rounded-2xl bg-sky-50/60">
+                    <div class="text-xl font-black text-sky-600">${myHours}</div>
+                    <div class="text-xs font-bold text-slate-500">ساعة معتمدة</div>
+                  </div>
+                  <div class="p-3 rounded-2xl bg-indigo-50/60">
+                    <div class="text-xl font-black text-indigo-600">${myParts.length}</div>
+                    <div class="text-xs font-bold text-slate-500">مشاركاتي</div>
+                  </div>
+                  <div class="p-3 rounded-2xl bg-amber-50/60">
+                    <div class="text-xl font-black text-amber-600">${myTalents.length}</div>
+                    <div class="text-xs font-bold text-slate-500">أعمالي في موهبة</div>
+                  </div>
+                ` : `
+                  <div class="p-3 rounded-2xl bg-sky-50/60">
+                    <div class="text-xl font-black text-sky-600">${myOpps.length}</div>
+                    <div class="text-xs font-bold text-slate-500">فرص أطلقتها</div>
+                  </div>
+                  <div class="p-3 rounded-2xl bg-emerald-50/60">
+                    <div class="text-xl font-black text-emerald-600">${db.participations.length}</div>
+                    <div class="text-xs font-bold text-slate-500">إجمالي مشاركات الطالبات</div>
+                  </div>
+                  <div class="p-3 rounded-2xl bg-amber-50/60">
+                    <div class="text-xl font-black text-amber-600">${db.talents.length}</div>
+                    <div class="text-xs font-bold text-slate-500">مواهب منشورة</div>
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- نموذج تخصيص الخلفية والصورة والنبذة -->
+          <form id="edit-profile-modal" onsubmit="handleSaveProfile(event)" class="hidden bg-white rounded-3xl p-6 border border-sky-200 card-shadow space-y-4">
+            <h3 class="text-lg font-black text-slate-800">🎨 تخصيص الخلفية والملف الشخصي</h3>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">اختاري لون خلفية جاهز أو ارفعي صورة من ألبومكِ</label>
+              <div class="flex flex-wrap gap-2 mb-2">
+                ${[
+                  'linear-gradient(135deg, #38bdf8, #bae6fd)',
+                  'linear-gradient(135deg, #818cf8, #c7d2fe)',
+                  'linear-gradient(135deg, #f472b6, #fbcfe8)',
+                  'linear-gradient(135deg, #34d399, #a7f3d0)',
+                  'linear-gradient(135deg, #fbbf24, #fde68a)'
+                ].map(grad => `
+                  <button type="button" onclick="selectPresetCover('${grad}')" class="w-10 h-10 rounded-xl border-2 border-white shadow" style="background:${grad}"></button>
+                `).join('')}
+              </div>
+              <input type="file" id="prof-cover-file" accept="image/*" class="w-full text-xs text-slate-600 file:ml-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-sky-50 file:text-sky-700 file:font-bold" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">الصورة الشخصية (ارفع صورة أو اختر رمزاً)</label>
+              <input type="file" id="prof-avatar-file" accept="image/*" class="w-full text-xs text-slate-600 file:ml-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-sky-50 file:text-sky-700 file:font-bold" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">النبذة التعريفية (Bio)</label>
+              <textarea id="prof-bio" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-sky-100 text-sm">${currentUser.bio || ''}</textarea>
+            </div>
+
+            <button type="submit" class="px-6 py-2.5 bg-sky-600 text-white font-extrabold rounded-xl text-sm">حفظ التغييرات</button>
+          </form>
+
+          <!-- سجل الأنشطة -->
+          <div class="bg-white rounded-3xl p-6 border border-sky-100 card-shadow">
+            <h3 class="text-lg font-black text-slate-800 mb-4">${isStudent ? '📋 سجل مشاركاتي وحالتها' : '📋 الفرص والمسابقات التي أطلقتها'}</h3>
+            ${isStudent ? (
+              myParts.length === 0 ? `<p class="text-xs text-slate-400">لم تشاركي في أي فرصة بعد.</p>` : `
+                <div class="space-y-2.5">
+                  ${myParts.map(p => {
+                    const opp = db.opportunities.find(o => o.id === p.oppId) || { title: 'فرصة', hours: 0 };
+                    return `
+                      <div class="p-3.5 rounded-2xl bg-sky-50/50 border border-sky-100 flex items-center justify-between">
+                        <div>
+                          <div class="font-extrabold text-sm text-slate-800">${opp.title}</div>
+                          <div class="text-xs text-slate-500">تاريخ التسجيل: ${p.joinedAt} • ${opp.hours} ساعات</div>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-extrabold ${p.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : p.status === 'winner' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">
+                          ${p.status === 'approved' ? 'معتمد ✅' : p.status === 'winner' ? 'فائزة 🏆' : 'قيد المراجعة'}
+                        </span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `
+            ) : (
+              myOpps.length === 0 ? `<p class="text-xs text-slate-400">لم تطلقي أي فرصة بعد.</p>` : `
+                <div class="space-y-2.5">
+                  ${myOpps.map(o => `
+                    <div class="p-3.5 rounded-2xl bg-sky-50/50 border border-sky-100 flex items-center justify-between">
+                      <div>
+                        <div class="font-extrabold text-sm text-slate-800">${o.title} (${o.type})</div>
+                        <div class="text-xs text-slate-500">ينتهي في: ${o.endDate} • ${o.hours} ساعات</div>
+                      </div>
+                      <button onclick="deleteOpp('${o.id}')" class="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold">حذف</button>
+                    </div>
+                  `).join('')}
+                </div>
+              `
+            )}
+          </div>
+        </div>
+      `;
+    }
+
+    function selectPresetCover(grad) {
+      currentUser.coverBg = grad;
+      currentUser.coverImg = '';
+      const uIdx = db.users.findIndex(u => u.id === currentUser.id);
+      if (uIdx !== -1) db.users[uIdx] = currentUser;
+      saveDB(db);
+      if (currentUser.role === 'student') renderStudentView();
+      else renderTeacherView();
+    }
+
+    async function handleSaveProfile(e) {
+      e.preventDefault();
+      const coverFile = document.getElementById('prof-cover-file').files[0];
+      const avatarFile = document.getElementById('prof-avatar-file').files[0];
+      const bio = document.getElementById('prof-bio').value.trim();
+
+      if (coverFile) currentUser.coverImg = await readFileAsBase64(coverFile);
+      if (avatarFile) currentUser.avatarImg = await readFileAsBase64(avatarFile);
+      currentUser.bio = bio;
+
+      const uIdx = db.users.findIndex(u => u.id === currentUser.id);
+      if (uIdx !== -1) db.users[uIdx] = currentUser;
+      saveDB(db);
+
+      if (currentUser.role === 'student') renderStudentView();
+      else renderTeacherView();
+    }
+
+    function deleteOpp(oppId) {
+      db.opportunities = db.opportunities.filter(o => o.id !== oppId);
+      saveDB(db);
+      renderTeacherView();
+    }
+  </script>
+</body>
+</html>
